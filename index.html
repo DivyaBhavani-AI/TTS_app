@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Text To Speech APP</title>
+<style>
+    div {
+  border: 2px solid;
+  padding: 20px; 
+  width: 500px;
+  resize: horizontal;
+  overflow: auto;
+}
+textarea, select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  background: #4a6cf7;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+</style>
+</head>
+<body>
+
+<style>
+  div {
+    /* CSS rules go here, e.g. */
+    margin: 20px;
+  }
+</style>
+
+<div>
+    <p style="font-family:verdana; font-size:30px;" ><b>Text to Speech</b> </p>
+  <textarea  id ="text"rows="4" cols="50" maxlength="600" count="charCount">
+Enter text here...
+  </textarea>
+  <h6>Characters: <span id="charCount">0</span>/600</h6>
+  <script>
+const textArea = document.getElementById('text')
+const charCount = document.getElementById('charCount')
+
+textArea.addEventListener('input', () => {
+  charCount.textContent = textArea.value.length
+})
+</script>
+  <select id="language">
+    <option value="en-US">English (US)</option>
+    <option value="hi-IN">Hindi</option>
+    <option value="gu-IN">Gujarati</option>
+    <option value="mr-IN">Marathi</option>
+    <option value="es-ES">Spanish</option>
+    <option value="fr-FR">French</option>
+    <option value="de-DE">German</option>
+  </select><br>
+  <select id="Voice selection">
+    <option>Male voice</option>
+    <option>Female voice</option>
+    <option>Different accent</option>
+  </select>
+
+  <br>
+
+  <button id="speakBtn" onclick="speak()">Generate Voice</button>
+  <a href="/download-audio/">Download Audio</a>
+</div>
+
+<div style="display: flex; gap: 12px; align-items: center; margin-top: 8px;">
+  <button onclick="rewind()">⏪</button>
+  <button onclick="pause()">⏸</button>
+  <button onclick="speak()">▶</button>
+  <button onclick="forward()">⏩</button>
+</div>
+
+ <script>
+ let audio =null
+    async function speak() {
+      const text = document.getElementById('text').value.trim()
+      const lang = document.getElementById('language').value
+      const btn = document.getElementById('speakBtn')
+
+      if(!text) {
+        alert('please enter some text ')
+        return
+      }
+      
+      if (audio) {
+    audio.pause()
+    audio.currentTime = 0
+  }
+
+       btn.disabled = true
+  btn.textContent = 'Generating...'
+
+  try{
+
+      const res = await fetch('/speak', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, lang })
+      })
+      if (!res.ok) {
+  const err = await res.json()
+  alert(err.detail)
+  return
+}
+
+
+      const audioBlob = await res.blob()
+      const audioUrl = URL.createObjectURL(audioBlob)
+      audio =new Audio(audioUrl)
+      audio.play()
+    }
+    finally {
+    btn.disabled = false
+    btn.textContent = 'Speak'
+  } }
+
+  function pause() {
+  if (audio) audio.pause()
+}
+
+function forward() {
+  if (audio) audio.currentTime += 5
+}
+
+function rewind() {
+  if (audio) audio.currentTime -= 5
+}
+  </script>
+</body>
+</html>
