@@ -8,6 +8,8 @@ from better_profanity import profanity
 import os
 import uuid
 
+os.makedirs("audio", exist_ok=True)
+
 app= FastAPI()
 app.mount("/audio",  StaticFiles(directory="audio"),name="audio")
 
