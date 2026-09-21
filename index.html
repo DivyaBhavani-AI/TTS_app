@@ -78,7 +78,7 @@ textArea.addEventListener('input', () => {
 <div style="display: flex; gap: 12px; align-items: center; margin-top: 8px;">
   <button onclick="rewind()">⏪</button>
   <button onclick="pause()">⏸</button>
-  <button onclick="speak()">▶</button>
+  <button id="playBtn" onclick="speak()">▶</button>
   <button onclick="forward()">⏩</button>
 </div>
 
@@ -88,6 +88,7 @@ textArea.addEventListener('input', () => {
       const text = document.getElementById('text').value.trim()
       const lang = document.getElementById('language').value
       const btn = document.getElementById('speakBtn')
+      const playBtn = document.getElementById('playBtn')
 
       if(!text) {
         alert('please enter some text ')
@@ -99,8 +100,9 @@ textArea.addEventListener('input', () => {
     audio.currentTime = 0
   }
 
-       btn.disabled = true
-  btn.textContent = 'Generating...'
+      btn.disabled = true
+      playBtn.disabled = true
+      btn.textContent = 'Generating...'
 
   try{
 
@@ -110,11 +112,10 @@ textArea.addEventListener('input', () => {
         body: JSON.stringify({ text, lang })
       })
       if (!res.ok) {
-  const err = await res.json()
-  alert(err.detail)
-  return
+        const err = await res.json()
+        alert(err.detail)
+        return
 }
-
 
       const audioBlob = await res.blob()
       const audioUrl = URL.createObjectURL(audioBlob)
@@ -123,6 +124,7 @@ textArea.addEventListener('input', () => {
     }
     finally {
     btn.disabled = false
+    playBtn.disabled = false
     btn.textContent = 'Speak'
   } }
 
